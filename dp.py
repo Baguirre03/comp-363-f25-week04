@@ -3,8 +3,9 @@ class Museum:
         self.values: list[int | None] = values
         self.weights: list[int | None] = weights
         self.c_max: int = c_max
-        self._table: list[list[tuple[int, set]]] = [
-            [0 for _ in range(self.c_max + 1)] for _ in range(len(self.weights) + 1)
+        self._table: list[list[list[int, set]]] = [
+            [[0, set()] for _ in range(self.c_max + 1)]
+            for _ in range(len(self.weights) + 1)
         ]
         # results
         self.optimal_subset: set[int] = None
@@ -41,14 +42,16 @@ class Museum:
             for j in range(m):
                 above_cell = self._table[i - 1][j]
                 if j - weight >= 0:
-                    self._table[i][j] = max(
-                        above_cell,
-                        (
-                            self._table[i - 1][j - weight] + self.values[i - 1]
-                            if self.values[i - 1]
-                            else 0
-                        ),
-                    )
+                    best_money, best_set = self._table[i - 1][j - weight]
+                    value = self.values[i - 1] if self.values[i - 1] else 0
+                    if above_cell[0] > best_money + value:
+                        self._table[i][j] = above_cell
+                    else:
+                        self._table[i][j][0] = best_money + value
+                        print(best_set, weight)
+                        self._table[i][j][1].update(best_set)
+                        self._table[i][j][1].add(weight)
+                        print(self._table[i][j][1])
                 else:
                     self._table[i][j] = above_cell
 
